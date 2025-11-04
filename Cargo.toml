@@ -1,0 +1,8 @@
+[package]
+name = "swsel"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+byteorder = "1.5.0"
+indexmap = "2.12.0"
