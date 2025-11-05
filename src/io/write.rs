@@ -72,22 +72,22 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
         let mut colored_c: usize = 0;
 
         for block in bblocks.iter() {
-            let block_data = building_sdata.blocks_sdata
+            let block_sdata = building_sdata.blocks_sdata
                 .get_mut(&Rc::as_ptr(block))
                 .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Block data not found. (In fn write_building)"))?;
             
             let packed_rotation = pack_rotation(block.rotation);
             let rotations_len = (rotations.len() as u16);
-            block_data.packed_rotation = packed_rotation;
-            block_data.rotation_id = *rotations.entry(packed_rotation).or_insert(rotations_len);
+            block_sdata.packed_rotation = packed_rotation;
+            block_sdata.rotation_id = *rotations.entry(packed_rotation).or_insert(rotations_len);
 
             if let Some(color) = block.color {
                 colored_c += 1;
 
                 let colors_len = colors.len();
                 let packed_color = pack_color(color);
-                block_data.packed_color = packed_color;
-                block_data.color_id = *colors.entry(packed_color).or_insert(colors_len as u8);
+                block_sdata.packed_color = packed_color;
+                block_sdata.color_id = *colors.entry(packed_color).or_insert(colors_len as u8);
             }
         }
 
