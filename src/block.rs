@@ -9,7 +9,7 @@ pub struct Block {
 
     pub id: u8,
 
-    pub settings: Option<BlockAdditionalSettings>,
+    pub settings: Option<BlockMetadata>,
 
     pub name: Option<String>,
     pub enable_state: f32,
