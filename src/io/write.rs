@@ -7,7 +7,7 @@ use byteorder::{WriteBytesExt, LittleEndian};
 
 pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> io::Result<()> {
     let mut building_sdata = BuildingSerializationData::new();
-    building_sdata.version = Some(version);
+    building_sdata.version = version;
 
     let [root_count, block_count] = building.count_roots_and_blocks();
     
@@ -22,7 +22,7 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
 
         for root in building.roots.iter() {
             let mut root_sdata = RootSerializationData::new();
-            root_sdata.rid = Some(current_rid as u16);
+            root_sdata.rid = current_rid;
             building_sdata.roots_sdata.insert(Rc::as_ptr(root), root_sdata);
             broots.push(root.clone());
             current_rid
@@ -31,7 +31,7 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
 
             for block in root.blocks.iter() {
                 let mut block_sdata = BlockSerializationData::new();
-                block_sdata.bid = Some(current_bid as u16);
+                block_sdata.bid = current_bid;
                 building_sdata.blocks_sdata.insert(Rc::as_ptr(block), block_sdata);
                 bblocks.push(block.clone());
                 current_bid
@@ -59,16 +59,13 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
 
     w.write_u8(version)?;
 
-    let color_lookup: bool;
-    let rotation_lookup: bool;
-    let rotation_indexing: bool;
-
     if version > 5 {
-        let broots = building_sdata.roots.borrow();
         let bblocks = building_sdata.blocks.borrow();
 
-        let mut colors: IndexMap<u16, u16> = IndexMap::new();
+        let mut colors: IndexMap<u16, u8> = IndexMap::new();
         let mut rotations: IndexMap<[u16; 3], u16> = IndexMap::new();
+
+        let mut colored_c: usize = 0;
 
         for block in bblocks.iter() {
             let block_data = building_sdata.blocks_sdata
