@@ -1,7 +1,6 @@
 use std::rc::Weak;
 use std::cell::RefCell;
-use std::io::{self, Read, Write};
-use crate::{blockadditionalsettings::BlockAdditionalSettings, root::Root};
+use std::io::{Read, Write};
 
 pub struct Block {
     pub position: [f32; 3],
