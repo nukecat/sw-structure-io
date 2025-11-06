@@ -149,44 +149,27 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
 }
 
 fn write_root<W: Write>(mut w: W, root: &Root, building_sdata: &mut BuildingSerializationData) -> io::Result<()> {
+    let root_sdata = building_sdata.roots_sdata
+        .get_mut(&(root as *const Root))
+        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Block data not found. (In fn write_root)"))?;
+
     for value in root.position.iter() {w.write_f32::<LittleEndian>(*value)?;}
     for value in root.rotation.iter() {w.write_f32::<LittleEndian>(*value)?;}
 
     if building_sdata.version >= 1 {
-        let mut bounds: [[f32; 3]; 2] = [
-            [f32::INFINITY; 3],
-            [f32::NEG_INFINITY; 3]
-        ];
-        for block in root.blocks.iter() {
-            for i in 0..3 {
-                bounds[0][i] = bounds[0][i].min(block.position[i]);
-                bounds[1][i] = bounds[1][i].max(block.position[i]);
-            }
-        }
+        let mut bounds = new_bounds();
+        for block in root.blocks.iter() {bounds_encapsulate(&mut bounds, block.position);}
 
-        let mut center = [0.0f32; 3];
-        let mut size = [0.0f32; 3];
+        let (center, size) = bounds_center_and_size(&bounds);
 
-        for i in 0..3 {
-            center[i] = (bounds[0][i] + bounds[1][i]) * 0.5;  // average of min and max
-            size[i] = bounds[1][i] - bounds[0][i];           // max - min
-        }
+        root_sdata.center = center;
+        root_sdata.size = size;
 
-        for &value in center.iter() {
-            w.write_f32::<LittleEndian>(value)?;
-        }
-        for &value in size.iter() {
-            w.write_f32::<LittleEndian>(value)?;
-        }
+        for &value in center.iter() {w.write_f32::<LittleEndian>(value)?;}
+        for &value in size.iter() {w.write_f32::<LittleEndian>(value)?;}
     }
 
-    if building_sdata.version >= 2 {
-        let root_sdata = building_sdata.roots_sdata
-            .get(&(root as *const Root))
-            .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Block data not found. (In fn write_root)"))?;
-        
-        w.write_u16::<LittleEndian>(root_sdata.last_block_index)?;
-    }
+    if building_sdata.version >= 2 {w.write_u16::<LittleEndian>(root_sdata.last_block_index)?;}
 
     Ok(())
 }
