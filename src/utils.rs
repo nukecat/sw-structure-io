@@ -103,6 +103,39 @@ pub fn unpack_bools(bytes: &[u8], count: usize) -> Vec<bool> {
     bools
 }
 
+pub fn write_7bit_encoded_int(mut w: impl Write, mut value: u32) -> io::Result<()> {
+    while value >= 0x80 {
+        w.write_all(&[((value as u8 & 0x7F) | 0x80)])?;
+        value >>= 7;
+    }
+    w.write_all(&[value as u8])?;
+    Ok(())
+}
+
+pub fn read_7bit_encoded_int(mut r: impl Read) -> io::Result<u32> {
+    let mut result = 0u32;
+    let mut bits_read = 0;
+
+    loop {
+        let mut buf = [0u8];
+        r.read_exact(&mut buf)?;
+        let byte = buf[0];
+
+        result |= ((byte & 0x7F) as u32) << bits_read;
+        bits_read += 7;
+
+        if bits_read > 35 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Too many bytes when decoding 7-bit int."));
+        }
+
+        if (byte & 0x80) == 0 {
+            break;
+        }
+    }
+
+    Ok(result)
+}
+
 pub fn pack_color(data: [u8; 3]) -> u16 {
     0
 }
