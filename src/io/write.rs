@@ -26,6 +26,7 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
                 let mut block_sdata = BlockSerializationData::new();
                 block_sdata.bid = current_bid;
                 block_sdata.root = Rc::as_ptr(root);
+                block_sdata.rid = current_rid;
                 building_sdata.blocks_sdata.insert(Rc::as_ptr(block), block_sdata);
                 bblocks.push(block.clone());
                 current_bid

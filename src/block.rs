@@ -8,7 +8,7 @@ pub struct Block {
 
     pub id: u8,
 
-    pub settings: Option<BlockMetadata>,
+    pub metadata: Option<BlockMetadata>,
 
     pub name: Option<String>,
     pub enable_state: f32,
@@ -16,7 +16,7 @@ pub struct Block {
 
     pub connections: RefCell<Vec<Weak<Block>>>,
 
-    pub load: Option<Weak<Block>>,
+    pub load: Weak<Block>,
 
     pub color : Option<[u8; 3]>
 }
@@ -43,7 +43,7 @@ pub struct Gradient {
 pub struct BlockMetadata {
     pub ticks: Vec<bool>,
     pub values: Vec<f32>,
-    pub fields: Vec<Vec<Weak<Block>>>,
+    pub fields: RefCell<Vec<Vec<Weak<Block>>>>,
     pub colors: Vec<[f32; 4]>,
     pub gradients: Vec<Gradient>,
     pub vectors: Vec<[f32; 3]>

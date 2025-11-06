@@ -5,6 +5,7 @@ use indexmap::{IndexMap};
 pub(crate) struct BlockSerializationData {
     pub(crate) bid: u16,
     pub(crate) root: *const Root,
+    pub(crate) rid: u16,
     pub(crate) color_id: u8,
     pub(crate) rotation_id: u16,
     pub(crate) packed_color: u16,
@@ -16,6 +17,7 @@ impl BlockSerializationData {
         BlockSerializationData {
             bid: 0,
             root: null(),
+            rid: 0,
             color_id: 0,
             rotation_id: 0,
             packed_color: 0,
