@@ -78,6 +78,31 @@ pub fn bounds_center_and_size(bounds: &[[f32; 3]; 2]) -> ([f32; 3], [f32; 3]) {
     (center, size)
 }
 
+pub fn pack_bools(bools: &[bool]) -> Vec<u8> {
+    let mut bytes = Vec::with_capacity((bools.len() + 7) / 8);
+    for chunk in bools.chunks(8) {
+        let mut byte = 0u8;
+        for (i, &b) in chunk.iter().enumerate() {
+            byte |= (b as u8) << i;
+        }
+        bytes.push(byte);
+    }
+    bytes
+}
+
+pub fn unpack_bools(bytes: &[u8], count: usize) -> Vec<bool> {
+    let mut bools = Vec::with_capacity(count);
+    for (i, &byte) in bytes.iter().enumerate() {
+        for bit in 0..8 {
+            if bools.len() == count {
+                return bools;
+            }
+            bools.push((byte >> bit) & 1 != 0);
+        }
+    }
+    bools
+}
+
 pub fn pack_color(data: [u8; 3]) -> u16 {
     0
 }
