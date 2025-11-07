@@ -68,7 +68,7 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
     // ---
     
     w.write_u8(version)?;
-    debug!("[version: u8] = {:#X}\n", version);
+    debug!("[version: u8] = {:?}\n", version);
 
     // Collecting rotations and colors to vectors and deciding if to use them.
     if version > 5 {
@@ -112,16 +112,16 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
         // Writing color and rotation vectors
         let color_lookup_val = if building_sdata.color_lookup {colors_len as u8} else {u8::MAX};
         w.write_u8(color_lookup_val)?;
-        debug!("[color_lookup: u8] = {:#X}\n", color_lookup_val);
+        debug!("[color_lookup: u8] = {:?}\n", color_lookup_val);
 
         let rotation_lookup_val = if building_sdata.rotation_lookup {rotations_len as u16} else {u16::MAX};
         w.write_u16::<LittleEndian>(rotation_lookup_val)?;
-        debug!("[rotation_lookup: u16] = {:#X}\n", rotation_lookup_val);
+        debug!("[rotation_lookup: u16] = {:?}\n", rotation_lookup_val);
 
         if building_sdata.color_lookup {
             for color in colors.iter() {
                 w.write_u16::<LittleEndian>(*color.0)?;
-                debug!("[packed_color: u16] = {:#X}\n", *color.0);
+                debug!("[packed_color: u16] = {:?}\n", *color.0);
             }
         }
         if building_sdata.rotation_lookup {
@@ -140,6 +140,7 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
 
     // Processing roots
     w.write_u16::<LittleEndian>(root_count as u16)?;
+    debug!("[root_count] = {:?}\n", root_count);
     {
         let broots = building_sdata.roots.borrow().clone();
         for root in broots.iter() {
@@ -152,6 +153,7 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
 
     // Processing blocks
     w.write_u16::<LittleEndian>(block_count as u16)?;
+    debug!("[block_count] = {:?}\n", block_count);
     {
         let bblocks = building_sdata.blocks.borrow().clone();
         for block in bblocks.iter() {
@@ -198,6 +200,7 @@ fn write_root<W: Write>(mut w: W, root: &Root, building_sdata: &mut BuildingSeri
 
     if building_sdata.version >= 2 {
         w.write_u16::<LittleEndian>(root_sdata.last_block_index)?;
+        debug!("> [last_bid]: {:?}\n", root_sdata.last_block_index);
     }
 
     Ok(())
@@ -219,10 +222,14 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
             let root_sdata = building_sdata.roots_sdata
                 .get_mut(&block_sdata.root)
                 .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Root serialization data not found."))?;
+
+            debug!("> [position]: ");
             for i in 0..3 {
                 let value = float_to_bounds(block.position[i], root_sdata.center[i], root_sdata.size[i]);
                 w.write_i16::<LittleEndian>(value)?;
+                debug!("{:?} ", value);
             }
+            debug!("\n");
         }
 
         if building_sdata.rotation_lookup {
@@ -231,10 +238,10 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
             } else {
                 w.write_u16::<LittleEndian>(block_sdata.rotation_id)?;
             }
+            debug!("> [rotation_id]: {:?}\n", block_sdata.rotation_id);
         } else {
-            for value in block_sdata.packed_rotation {
-                w.write_u16::<LittleEndian>(value)?;
-            }
+            w.write_array(&block_sdata.packed_rotation, |w, &v| w.write_u16::<LittleEndian>(v))?;
+            debug!("> [packed_rotation]: {:?}\n", block_sdata.packed_rotation);
         }
 
         w.write_u8(block.id)?;
