@@ -1,0 +1,565 @@
+[[block]]
+id = 0
+name = "metal_block"
+
+[[block]]
+id = 1
+name = "wood_block"
+
+[[block]]
+id = 2
+name = "small_jet_engine"
+
+values = ["power"]
+
+[[block]]
+id = 3
+name = "gravity_cannon"
+flags = ["discard"]
+
+[[block]]
+id = 4
+name = "monitor"
+
+[[block]]
+id = 5
+name = "seat"
+
+[[block]]
+id = 6
+name = "table"
+
+[[block]]
+id = 7
+name = "connector"
+flags = ["discard"]
+
+[[block]]
+id = 8
+name = "adjustable_pontoon"
+values = ["buoyancy"]
+
+[[block]]
+id = 9
+name = "switch"
+
+[[block]]
+id = 10
+name = "button"
+
+[[block]]
+id = 11
+name = "slider"
+
+[[block]]
+id = 12
+name = "bearing"
+
+[[block]]
+id = 13
+name = "wheel"
+
+[[block]]
+id = 14
+name = "bearing_controller"
+
+[[block]]
+id = 15
+name = "engine"
+
+[[block]]
+id = 16
+name = "underwater_propeller"
+
+[[block]]
+id = 17
+name = "small_wheel"
+
+[[block]]
+id = 18
+name = "large_engine"
+
+[[block]]
+id = 19
+name = "pontoon"
+
+[[block]]
+id = 20
+name = "air_propeller"
+
+[[block]]
+id = 21
+name = "small_air_propeller"
+
+[[block]]
+id = 22
+name = "signal_rotator"
+
+[[block]]
+id = 23
+name = "large_rocket_engine"
+
+[[block]]
+id = 24
+name = "shock_absorber"
+
+[[block]]
+id = 25
+name = "shock_block"
+
+[[block]]
+id = 26
+name = "tank_chassis_controller"
+
+[[block]]
+id = 27
+name = "saver"
+flags = ["discard"]
+
+[[block]]
+id = 28
+name = "glass_block"
+flags = ["non_interactable"]
+
+[[block]]
+id = 29
+name = "decorative_fan"
+
+[[block]]
+id = 30
+name = "spotlight"
+
+[[block]]
+id = 31
+name = "medium_cannon"
+
+[[block]]
+id = 32
+name = "light_cannon"
+
+[[block]]
+id = 33
+name = "metal_halfblock_1"
+flags = ["non_interactable"]
+
+[[block]]
+id = 34
+name = "metal_halfblock_2"
+flags = ["non_interactable"]
+
+[[block]]
+id = 35
+name = "metal_halfblock_3"
+flags = ["non_interactable"]
+
+[[block]]
+id = 36
+name = "metal_halfblock_4"
+flags = ["non_interactable"]
+
+[[block]]
+id = 37
+name = "metal_halfblock_5"
+flags = ["non_interactable"]
+
+[[block]]
+id = 38
+name = "metal_halfblock_6"
+flags = ["non_interactable"]
+
+[[block]]
+id = 39
+name = "medium_ammo_box"
+
+[[block]]
+id = 40
+name = "wing"
+
+[[block]]
+id = 41
+name = "small_wing"
+
+[[block]]
+id = 42
+name = "flight_controller"
+
+[[block]]
+id = 43
+name = "medium_rocket_engine"
+
+[[block]]
+id = 44
+name = "small_rocket_launcher"
+
+[[block]]
+id = 45
+name = "bomb"
+
+[[block]]
+id = 46
+name = "off_switch"
+
+[[block]]
+id = 47
+name = "queue_switch"
+
+[[block]]
+id = 48
+name = "medium_rocket_launcher"
+
+[[block]]
+id = 49
+name = "machine_gun"
+
+[[block]]
+id = 50
+name = "painter"
+flags = ["discard"]
+
+[[block]]
+id = 51
+name = "saw"
+
+[[block]]
+id = 52
+name = "heavy_cannon"
+
+[[block]]
+id = 53
+name = "camera"
+
+[[block]]
+id = 54
+name = "teleporter"
+flags = ["discard"]
+
+[[block]]
+id = 55
+name = "grenade_launcher"
+
+[[block]]
+id = 56
+name = "ladder"
+
+[[block]]
+id = 57
+name = "filter"
+
+[[block]]
+id = 58
+name = "welding_tool"
+flags = ["discard"]
+
+[[block]]
+id = 59
+name = "metal_halfblock"
+flags = ["non_interactable"]
+
+[[block]]
+id = 60
+name = "hover"
+
+[[block]]
+id = 61
+name = "beam"
+
+[[block]]
+id = 62
+name = "glass_halfblock_1"
+flags = ["non_interactable"]
+
+[[block]]
+id = 63
+name = "glass_halfblock_2"
+flags = ["non_interactable"]
+
+[[block]]
+id = 64
+name = "glass_halfblock_3"
+flags = ["non_interactable"]
+
+[[block]]
+id = 65
+name = "glass_halfblock_4"
+flags = ["non_interactable"]
+
+[[block]]
+id = 66
+name = "glass_halfblock_5"
+flags = ["non_interactable"]
+
+[[block]]
+id = 67
+name = "glass_halfblock_6"
+flags = ["non_interactable"]
+
+[[block]]
+id = 68
+name = "glass_halfblock_7"
+flags = ["non_interactable"]
+
+[[block]]
+id = 69
+name = "wood_halfblock_1"
+flags = ["non_interactable"]
+
+[[block]]
+id = 70
+name = "wood_halfblock_2"
+flags = ["non_interactable"]
+
+[[block]]
+id = 71
+name = "wood_halfblock_3"
+flags = ["non_interactable"]
+
+[[block]]
+id = 72
+name = "wood_halfblock_4"
+flags = ["non_interactable"]
+
+[[block]]
+id = 73
+name = "wood_halfblock_5"
+flags = ["non_interactable"]
+
+[[block]]
+id = 74
+name = "wood_halfblock_6"
+flags = ["non_interactable"]
+
+[[block]]
+id = 75
+name = "wood_halfblock_7"
+flags = ["non_interactable"]
+
+[[block]]
+id = 76
+name = "pixel"
+
+[[block]]
+id = 77
+name = "and_gate"
+
+[[block]]
+id = 78
+name = "or_gate"
+
+[[block]]
+id = 79
+name = "nand_gate"
+
+[[block]]
+id = 80
+name = "nor_gate"
+
+[[block]]
+id = 81
+name = "xor_gate"
+
+[[block]]
+id = 82
+name = "xnor_gate"
+
+[[block]]
+id = 83
+name = "smoother"
+
+[[block]]
+id = 84
+name = "timer"
+
+[[block]]
+id = 85
+name = "sensor"
+
+[[block]]
+id = 86
+name = "metal_halfblock_2_alt"
+flags = ["non_interactable"]
+
+[[block]]
+id = 87
+name = "glass_halfblock_alt"
+flags = ["non_interactable"]
+
+[[block]]
+id = 88
+name = "wood_halfblock_alt"
+flags = ["non_interactable"]
+
+[[block]]
+id = 89
+name = "small_ammo_box"
+
+[[block]]
+id = 90
+name = "large_ammo_box"
+
+[[block]]
+id = 91
+name = "sign"
+
+[[block]]
+id = 92
+name = "tilt_stabilizer"
+
+[[block]]
+id = 93
+name = "height_stabilizer"
+
+[[block]]
+id = 94
+name = "small_rocket_engine"
+
+[[block]]
+id = 95
+name = "railgun"
+
+[[block]]
+id = 96
+name = "large_ion_engine"
+
+[[block]]
+id = 97
+name = "five_shot_cannon"
+
+[[block]]
+id = 98
+name = "medium_ion_engine"
+
+[[block]]
+id = 99
+name = "auto_cannon"
+
+[[block]]
+id = 100
+name = "jet_engine"
+
+[[block]]
+id = 101
+name = "smoke_grenade_launcher"
+
+[[block]]
+id = 102
+name = "flamethrower"
+
+[[block]]
+id = 103
+name = "night_vision_camera"
+
+[[block]]
+id = 104
+name = "small_ion_engine"
+
+[[block]]
+id = 105
+name = "medium_wheel"
+
+[[block]]
+id = 106
+name = "tiny_wheel"
+
+[[block]]
+id = 107
+name = "magnet"
+
+[[block]]
+id = 108
+name = "rangefinder"
+
+[[block]]
+id = 109
+name = "custom_block"
+flags = ["custom_block"]
+
+[[block]]
+id = 110
+name = "turbojet_engine"
+
+[[block]]
+id = 111
+name = "large_turbojet_engine"
+
+[[block]]
+id = 112
+name = "sticker_tool"
+
+[[block]]
+id = 113
+name = "sticker"
+
+[[block]]
+id = 114
+name = "large_rocket_launcher"
+
+[[block]]
+id = 115
+name = "heat_trap"
+
+[[block]]
+id = 116
+name = "ballast"
+
+[[block]]
+id = 117
+name = "speed_stabilizer"
+
+[[block]]
+id = 118
+name = "custom_pontoon"
+
+[[block]]
+id = 119
+name = "tank_roller"
+
+[[block]]
+id = 120
+name = "custom_wood_block"
+flags = ["custom_block"]
+
+[[block]]
+id = 121
+name = "custom_glass_block"
+flags = ["custom_block"]
+
+[[block]]
+id = 122
+name = "reactive_armor"
+
+[[block]]
+id = 123
+name = "anti_air_gun"
+
+[[block]]
+id = 124
+name = "halloween_flamethrower"
+
+[[block]]
+id = 125
+name = "tone_generator"
+
+[[block]]
+id = 126
+name = "text_sticker"
+
+[[block]]
+id = 127
+name = "speedometer"
+
+[[block]]
+id = 128
+name = "custom_wheel"
+
+[[block]]
+id = 129
+name = "math_block"
+
+[[block]]
+id = 130
+name = "neon_block"
+flags = ["custom_block"]
+
+[[block]]
+id = 131
+name = "small_shock_absorber"
