@@ -1,3 +1,4 @@
 pub mod read;
 pub mod write;
-pub mod types;
+mod types;
+mod utils;
