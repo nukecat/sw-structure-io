@@ -2,11 +2,21 @@ use std::rc::Rc;
 use crate::block::Block;
 use std::io::{Write, Read};
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Root {
     pub position: [f32; 3],
     pub rotation: [f32; 3],
     pub blocks: Vec<Rc<Block>>
+}
+
+impl Clone for Root {
+    fn clone(&self) -> Self {
+        Root {
+            position: self.position,
+            rotation: self.rotation,
+            blocks: self.blocks.iter().map(|b| Rc::new((**b).clone())).collect()
+        }
+    }
 }
 
 impl Root {

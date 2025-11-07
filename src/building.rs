@@ -1,10 +1,18 @@
-use std::rc::Rc;
+use std::{clone, rc::Rc};
 use crate::root::*;
 use std::io::{Write, Read};
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Building {
     pub roots: Vec<Rc<Root>>
+}
+
+impl Clone for Building {
+    fn clone(&self) -> Self {
+        Building {
+            roots: self.roots.iter().map(|b| Rc::new((**b).clone())).collect()
+        }
+    }
 }
 
 impl Building {
