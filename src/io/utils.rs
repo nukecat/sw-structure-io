@@ -72,7 +72,7 @@ pub(crate) fn bounds_center_and_size(bounds: &[[f32; 3]; 2]) -> ([f32; 3], [f32;
 
     for i in 0..3 {
         center[i] = (bounds[0][i] + bounds[1][i]) * 0.5;
-        size[i] = (bounds[1][i] - bounds[0][i]).max(1.0f32);
+        size[i] = (bounds[1][i] - bounds[0][i])
     }
 
     (center, size)
@@ -83,7 +83,7 @@ pub(crate) fn pack_bools(bools: &[bool]) -> Vec<u8> {
     for chunk in bools.chunks(8) {
         let mut byte = 0u8;
         for (i, &b) in chunk.iter().enumerate() {
-            byte |= (b as u8) << i;
+            byte |= (b as u8) << (7 - i);
         }
         bytes.push(byte);
     }
@@ -101,15 +101,6 @@ pub(crate) fn unpack_bools(bytes: &[u8], count: usize) -> Vec<bool> {
         }
     }
     bools
-}
-
-pub(crate) fn write_7bit_encoded_int(mut w: impl Write, mut value: u32) -> io::Result<()> {
-    while value >= 0x80 {
-        w.write_all(&[((value as u8 & 0x7F) | 0x80)])?;
-        value >>= 7;
-    }
-    w.write_all(&[value as u8])?;
-    Ok(())
 }
 
 pub(crate) fn read_7bit_encoded_int(mut r: impl Read) -> io::Result<u32> {
@@ -134,11 +125,6 @@ pub(crate) fn read_7bit_encoded_int(mut r: impl Read) -> io::Result<u32> {
     }
 
     Ok(result)
-}
-
-pub(crate) fn write_string_7bit<W: Write>(mut w: W, s: &str) -> io::Result<()> {
-    write_7bit_encoded_int(&mut w, s.len() as u32)?;
-    w.write_all(s.as_bytes())
 }
 
 pub(crate) fn read_string_7bit<R: Read>(mut r: R) -> io::Result<String> {
