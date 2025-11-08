@@ -1,4 +1,5 @@
-use std::rc::Rc;
+use std::{cell::{RefCell, Cell}, rc::{Rc, Weak}};
+use indexmap::IndexMap;
 use crate::block::Block;
 use std::io::{Write, Read};
 
@@ -14,7 +15,24 @@ pub struct Root {
 }
 
 impl Clone for Root {
+    /// Makes a deep copy of root, while preserving internal connections. External connections of blocks are dropped.
     fn clone(&self) -> Self {
+        let mut new_blocks: Vec<Rc<Block>> = Vec::new();
+        let mut blocks_map: IndexMap<*const Block, Weak<Block>> = IndexMap::new();
+
+        for block in self.blocks.borrow().iter() {
+            let new_block = Rc::new(block.as_ref().clone());
+            blocks_map.insert(Rc::as_ptr(block), Rc::downgrade(&new_block));
+            new_blocks.push(new_block);
+        }
+
+        for block in &new_blocks {
+            let mut connections = block.connections.borrow_mut();
+            *connections = block.connections.borrow().iter()
+                .filter_map(|connection| blocks_map.get(&Weak::as_ptr(connection)).cloned())
+                .collect();
+        }
+
         Root {
             position: self.position.clone(),
             rotation: self.rotation.clone(),
