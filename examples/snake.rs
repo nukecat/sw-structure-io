@@ -4,7 +4,7 @@ use swsel::{block::*, building::*, root::*};
 
 fn main() {
     let mut building = Building::new();
-    let mut block = Block::new();
+    let mut block = Block::default();
     let mut root = Root::new();
 
     for i in 0..2048 {
