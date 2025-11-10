@@ -48,7 +48,7 @@ impl Bounds {
             min: [f32::INFINITY; 3],
             max: [f32::NEG_INFINITY; 3]
         }
-}
+    }
 
     pub(crate) const fn get_center_and_size(&self) -> ([f32; 3], [f32; 3]) {
         let mut center = [0.0f32; 3];
@@ -62,18 +62,18 @@ impl Bounds {
         }
 
         (center, size)
-}
+    }
 
     pub(crate) fn to_inbounds(&self, f: [f32; 3]) -> [i16; 3] {
         let (center, size) = self.get_center_and_size();
 
-    let mut result = [0i16; 3];
-    for i in 0..3 {
+        let mut result = [0i16; 3];
+        for i in 0..3 {
             let multiplier = (1.0f32 / size[i]) * i16::MAX as f32;
             result[i] = ((f[i] - center[i]) * multiplier).round() as i16
+        }
+        result
     }
-    result
-}
 
     pub(crate) fn to_global(&self, v: [i16; 3]) -> [f32; 3] {
         let (center, size) = self.get_center_and_size();
@@ -84,14 +84,14 @@ impl Bounds {
             result[i] = center[i] + v[i] as f32 * multiplier;
         }
         result
-}
+    }
 
     pub(crate) fn encapsulate(&mut self, block_position: &[f32; 3]) {
-    for i in 0..3 {
+        for i in 0..3 {
             self.min[i] = self.min[i].min(block_position[i]);
             self.max[i] = self.max[i].max(block_position[i]);
+        }
     }
-}
 }
 
 pub(crate) fn pack_bools(bools: &[bool]) -> Vec<u8> {
@@ -215,7 +215,7 @@ pub trait WriteUtils: Write {
     }
 }
 
-impl<W: Write + ?Sized> WriteUtils for W {} 
+impl<W: Write + ?Sized> WriteUtils for W {}
 
 #[test]
 fn test_pack_unpack_roundtrip() {

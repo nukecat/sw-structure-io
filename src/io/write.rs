@@ -1,15 +1,19 @@
-use core::str;
-use std::io::{Write, Read};
-use std::ops::Deref;
-use std::{io, marker, u8};
-use crate::definitions::{BLOCK_FLAGS_VEC, flag};
-use crate::root;
-use crate::{building::*, root::*, block::*, io::types::*};
-use indexmap::IndexMap;
-use std::rc::*;
-use std::io::{Error, ErrorKind};
 use byteorder::{WriteBytesExt, LittleEndian};
-use crate::io::utils::*;
+use std::{
+    io,
+    u8,
+    io::{Write, Error, ErrorKind},
+    rc::{Rc, Weak}
+};
+use core::str;
+use indexmap::IndexMap;
+use crate::{
+    definitions::{BLOCK_FLAGS_VEC, flag},
+    building::*,
+    root::*,
+    block::*,
+    io::{types::*, utils::*}
+};
 
 pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> io::Result<()> {
     let mut building_sdata = BuildingSerializationData::new();
@@ -339,11 +343,13 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
         if building_sdata.version == 0 {
             w.write_array(&block.color.get().unwrap(), |w, &v| w.write_u8(v))?;
             debug!("> [color]: {:?} +(const 0xFF)\n", block.color.get().unwrap());
+
             w.write_u8(u8::MAX)?; // Value for alpha channel that does nothing.
         } else {
             let block_sdata = building_sdata.blocks_sdata
                 .get(&(block as *const Block))
                 .ok_or_else(|| Error::new(ErrorKind::NotFound, "Block data not found."))?;
+            
             if building_sdata.color_lookup {
                 w.write_u8(block_sdata.color_id)?;
                 debug!("> [color_id]: {:?}\n", block_sdata.color_id);
