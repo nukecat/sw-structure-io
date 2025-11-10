@@ -148,12 +148,18 @@ pub(crate) fn read_string_7bit<R: Read>(mut r: R) -> io::Result<String> {
 }
 
 
-pub(crate) fn pack_color(data: [u8; 3]) -> u16 {
-    0
+pub(crate) fn pack_color([r, g, b]: [u8; 3]) -> u16 {
+    ((r & 0xF8) as u16) << 8 |
+    ((g & 0xFC) as u16) << 2 |
+    ((b & 0xF8) as u16) >> 3
 }
 
-pub(crate) fn unpack_color(data: u16) -> [u8; 3] {
-    [0, 0, 0]
+pub(crate) fn unpack_color(rgb565: u16) -> [u8; 3] {
+    [
+        ((rgb565 >> 8) & 0xF8) as u8,
+        ((rgb565 >> 2) & 0xFC) as u8,
+        ((rgb565 << 3) & 0xF8) as u8,
+    ]
 }
 
 pub trait WriteUtils: Write {
