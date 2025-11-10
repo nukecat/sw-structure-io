@@ -1,7 +1,10 @@
-use std::io::{Read, Write};
+use std::io::{Error, ErrorKind, Read, Write};
 use std::io;
 use std::io::Result;
-use byteorder::{LittleEndian, WriteBytesExt};
+use byteorder::{ByteOrder, WriteBytesExt};
+use num_traits::{FromPrimitive, PrimInt, Unsigned};
+
+use crate::block::Gradient;
 
 const ROTATION_MULTIPLIER: f32 = (u16::MAX as f32) / 360.0f32;
 const ROTATION_INV: f32 = 360.0 / (u16::MAX as f32);
