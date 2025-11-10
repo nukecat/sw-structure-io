@@ -178,6 +178,32 @@ pub trait WriteUtils: Write {
         self.write_all(s.as_bytes())?;
         Ok(())
     }
+
+    fn write_gradient<E: ByteOrder>(&mut self, g: &Gradient) -> io::Result<()> {
+        let color_keys = g.color_keys.borrow();
+        let alpha_keys = g.alpha_keys.borrow();
+        for color_key in color_keys.iter() {
+            self.write_array(&color_key.color, |w, &v| w.write_f32::<E>(v))?;
+        }
+        self.write_array(&alpha_keys, |w, v| w.write_f32::<E>(v.value))?;
+        self.write_array(&alpha_keys, |w, v| w.write_f32::<E>(v.time))?;
+        
+        Ok(())
+    }
+
+    /// Writes array with length. Returns error if length is bigger than N max value.
+    fn write_array_with_length<N: PrimInt + Unsigned + FromPrimitive, T: Copy>(
+        &mut self,
+        l: impl Fn(&mut Self, &N) -> Result<()>,
+        f: impl Fn(&mut Self, &T) -> Result<()>,
+        array: &[T]
+    ) -> Result<()> {
+        let len_n = N::from_usize(array.len())
+            .ok_or_else(|| Error::new(ErrorKind::Other, "Array length too big for integer type"))?;
+        l(self, &len_n)?;
+        self.write_array(array, f)?;
+        Ok(())
+    }
 }
 
 impl<W: Write + ?Sized> WriteUtils for W {} 
