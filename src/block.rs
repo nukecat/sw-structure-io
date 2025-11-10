@@ -52,28 +52,29 @@ impl Block {
 
 #[derive(Copy, Clone, Debug)]
 pub struct ColorKey {
-    time: f32,
-    color: [f32; 4]
+    pub color: [f32; 4],
+    pub time: f32
 }
 
 #[derive(Copy, Clone, Debug)]
 pub struct AlphaKey {
-    time: f32,
-    alpha: f32
+    pub value: f32,
+    pub time: f32
 }
 
 #[derive(Clone, Debug)]
 pub struct Gradient {
-    color_keys: Vec<ColorKey>,
-    alpha_keys: Vec<AlphaKey>
+    pub color_keys: RefCell<Vec<ColorKey>>,
+    pub alpha_keys: RefCell<Vec<AlphaKey>>
 }
 
 #[derive(Clone, Debug)]
 pub struct BlockMetadata {
-    pub ticks: Vec<bool>,
-    pub values: Vec<f32>,
+    pub toggles: RefCell<Vec<bool>>,
+    pub values: RefCell<Vec<f32>>,
     pub fields: RefCell<Vec<Vec<Weak<Block>>>>,
-    pub colors: Vec<[f32; 4]>,
-    pub gradients: Vec<Gradient>,
-    pub vectors: Vec<[f32; 3]>
+    pub dropdowns: RefCell<Vec<u8>>,
+    pub colors: RefCell<Vec<[f32; 4]>>,
+    pub gradients: RefCell<Vec<Gradient>>,
+    pub vectors: RefCell<Vec<[f32; 3]>>
 }
