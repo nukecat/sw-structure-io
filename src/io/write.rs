@@ -1,4 +1,4 @@
-use byteorder::{WriteBytesExt, LittleEndian};
+use byteorder::{WriteBytesExt, LE};
 use std::{
     io,
     u8,
@@ -99,18 +99,18 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
         debug!("[color_lookup]: {:?}\n", color_lookup_val);
 
         let rotation_lookup_val = if building_sdata.rotation_lookup {rotations_len as u16} else {u16::MAX};
-        w.write_u16::<LittleEndian>(rotation_lookup_val)?;
+        w.write_u16::<LE>(rotation_lookup_val)?;
         debug!("[rotation_lookup]: {:?}\n", rotation_lookup_val);
 
         if building_sdata.color_lookup {
             for color in colors.iter() {
-                w.write_u16::<LittleEndian>(*color.0)?;
+                w.write_u16::<LE>(*color.0)?;
                 debug!("[packed_color]: {:?}\n", *color.0);
             }
         }
         if building_sdata.rotation_lookup {
             for rotation in rotations.iter() {
-                w.write_array(rotation.0, |w, &v| w.write_u16::<LittleEndian>(v))?;
+                w.write_array(rotation.0, |w, &v| w.write_u16::<LE>(v))?;
                 debug!("[packed_rotation]: {:?}\n", rotation.0);
             }
         }
@@ -119,7 +119,7 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
     // ---
 
     // Processing roots
-    w.write_u16::<LittleEndian>(root_count as u16)?;
+    w.write_u16::<LE>(root_count as u16)?;
     debug!("[root_count] = {:?}\n", root_count);
     {
         let broots = building_sdata.roots.borrow().clone();
@@ -132,7 +132,7 @@ pub fn write_building<W: Write>(mut w: W, building: &Building, version: u8) -> i
     // ---
 
     // Processing blocks
-    w.write_u16::<LittleEndian>(block_count as u16)?;
+    w.write_u16::<LE>(block_count as u16)?;
     debug!("[block_count] = {:?}\n", block_count);
     {
         let bblocks = building_sdata.blocks.borrow().clone();
@@ -152,10 +152,10 @@ fn write_root<W: Write>(mut w: W, root: &Root, building_sdata: &mut BuildingSeri
         .get_mut(&(root as *const Root))
         .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Block serialization data not found."))?;
 
-    w.write_array(&root.position.get(), |w, &v| w.write_f32::<LittleEndian>(v))?;
+    w.write_array(&root.position.get(), |w, &v| w.write_f32::<LE>(v))?;
     debug!("> [position]: {:?}\n", root.position.get());
 
-    w.write_array(&root.rotation.get(), |w, &v| w.write_f32::<LittleEndian>(v))?;
+    w.write_array(&root.rotation.get(), |w, &v| w.write_f32::<LE>(v))?;
     debug!("> [rotation]: {:?}\n", root.rotation.get());
 
     if building_sdata.version >= 1 {
@@ -165,14 +165,14 @@ fn write_root<W: Write>(mut w: W, root: &Root, building_sdata: &mut BuildingSeri
 
         let (center, size) = root_sdata.bounds.get_center_and_size();
 
-        w.write_array(&center, |w, &v| w.write_f32::<LittleEndian>(v))?;
+        w.write_array(&center, |w, &v| w.write_f32::<LE>(v))?;
         debug!("> [center]: {:?}\n", center);
-        w.write_array(&size, |w, &v| w.write_f32::<LittleEndian>(v))?;
+        w.write_array(&size, |w, &v| w.write_f32::<LE>(v))?;
         debug!("> [size]: {:?}\n", size);
     }
 
     if building_sdata.version >= 2 {
-        w.write_u16::<LittleEndian>(root_sdata.last_block_index)?;
+        w.write_u16::<LE>(root_sdata.last_block_index)?;
         debug!("> [last_bid]: {:?}\n", root_sdata.last_block_index);
     }
 
@@ -187,7 +187,7 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
             .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Block serialization data not found."))?;
         
         if building_sdata.version == 0 {
-            w.write_array(&block.position.get(), |w, &v| w.write_f32::<LittleEndian>(v))?;
+            w.write_array(&block.position.get(), |w, &v| w.write_f32::<LE>(v))?;
             debug!("> [position]: {:?}", &block.position.get());
         } else {
             let root_sdata = building_sdata.roots_sdata
@@ -195,7 +195,7 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
                 .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Root serialization data not found."))?;
 
             let position_inbounds = root_sdata.bounds.to_inbounds(block.position.get());
-            w.write_array(&position_inbounds, |w, &v| w.write_i16::<LittleEndian>(v))?;
+            w.write_array(&position_inbounds, |w, &v| w.write_i16::<LE>(v))?;
             debug!("> [position_inbounds]: {:?}\n", position_inbounds);
         }
 
@@ -205,11 +205,11 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
                     .map_err(|_| Error::new(ErrorKind::Other, "rotation_id u8 overflow"))?;
                 w.write_u8(rotation_id_u8)?;
             } else {
-                w.write_u16::<LittleEndian>(block_sdata.rotation_id)?;
+                w.write_u16::<LE>(block_sdata.rotation_id)?;
             }
             debug!("> [rotation_id]: {:?}\n", block_sdata.rotation_id);
         } else {
-            w.write_array(&block_sdata.packed_rotation, |w, &v| w.write_u16::<LittleEndian>(v))?;
+            w.write_array(&block_sdata.packed_rotation, |w, &v| w.write_u16::<LE>(v))?;
             debug!("> [packed_rotation]: {:?}\n", block_sdata.packed_rotation);
         }
 
@@ -217,7 +217,7 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
         debug!("> [block_id]: {:?}\n", block.id.get());
 
         if building_sdata.version < 2 {
-            w.write_u16::<LittleEndian>(block_sdata.rid)?;
+            w.write_u16::<LE>(block_sdata.rid)?;
             debug!("> [root_id]: {:?}\n", block_sdata.rid);
         }
     }
@@ -297,7 +297,7 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
 
         // Load
         if !flags[4] {
-            w.write_u16::<LittleEndian>(load_id.unwrap())?;
+            w.write_u16::<LE>(load_id.unwrap())?;
             debug!("> [load_id]: {:?}\n", load_id.unwrap());
         }
         // ---
@@ -309,7 +309,7 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
             if building_sdata.version == 0 {
                 let connections_count_u16: u16 = u16::try_from(connections_count)
                     .map_err(|_| Error::new(ErrorKind::InvalidData, "Too many connections! (its over 65535 connections!!! how did you get there?)"))?;
-                w.write_u16::<LittleEndian>(connections_count_u16)?;
+                w.write_u16::<LE>(connections_count_u16)?;
             } else {
                 let connections_count_u8: u8 = u8::try_from(connections_count)
                     .map_err(|_| Error::new(ErrorKind::InvalidData, "Too many connections! (255 connections max for version > 0, consider reducing ammount of connections per block or use version = 0)"))?;
@@ -318,7 +318,7 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
             debug!("> [connections_count]: {:?}\n", connections_count);
 
             for &bid in connection_ids.iter() {
-                w.write_u16::<LittleEndian>(bid)?;
+                w.write_u16::<LE>(bid)?;
                 debug!("> > [connected_block_id]: {:?}\n", bid);
             }
         }
@@ -354,7 +354,7 @@ fn write_block<W: Write>(mut w: W, block: &Block, building_sdata: &mut BuildingS
                 w.write_u8(block_sdata.color_id)?;
                 debug!("> [color_id]: {:?}\n", block_sdata.color_id);
             } else {
-                w.write_u16::<LittleEndian>(block_sdata.packed_color)?;
+                w.write_u16::<LE>(block_sdata.packed_color)?;
                 debug!("> [packed_color]: {:?}\n", block_sdata.packed_color);
             }
         }
@@ -383,11 +383,11 @@ fn write_block_metadata<W: Write>(mut w: W, block: &Block, building_sdata: &mut 
     match building_sdata.version {
         0 => {
             // Toggles
-            w.write_array_with_length(|w, &l| w.write_u16::<LittleEndian>(l), |w, &v| w.write_u8(v as u8), &toggles)?;
+            w.write_array_with_length(|w, &l| w.write_u16::<LE>(l), |w, &v| w.write_u8(v as u8), &toggles)?;
             // ---
 
             // Values
-            w.write_array_with_length(|w, &l| w.write_u16::<LittleEndian>(l), |w, &v| w.write_f32::<LittleEndian>(v), &values)?;
+            w.write_array_with_length(|w, &l| w.write_u16::<LE>(l), |w, &v| w.write_f32::<LE>(v), &values)?;
             // ---
 
             // Vectors and fields
@@ -400,11 +400,11 @@ fn write_block_metadata<W: Write>(mut w: W, block: &Block, building_sdata: &mut 
             }
 
             // > The first bit tells if block has vectors, the other bits tell amount of fields.
-            w.write_u16::<LittleEndian>(fields_len + if vectors_len != 0 {0x8000} else {0})?;
+            w.write_u16::<LE>(fields_len + if vectors_len != 0 {0x8000} else {0})?;
             if vectors_len != 0 {
-                w.write_u16::<LittleEndian>(vectors_len)?;
+                w.write_u16::<LE>(vectors_len)?;
                 for vector in vectors.iter() {
-                    w.write_array(vector, |w, &v| w.write_f32::<LittleEndian>(v))?;
+                    w.write_array(vector, |w, &v| w.write_f32::<LE>(v))?;
                 }
             }
 
@@ -416,27 +416,27 @@ fn write_block_metadata<W: Write>(mut w: W, block: &Block, building_sdata: &mut 
                         .get(&Rc::as_ptr(&block))
                         .ok_or_else(|| Error::new(ErrorKind::NotFound, "Block data not found"))?;
                     
-                    w.write_u16::<LittleEndian>(block_in_field_sdata.bid)?;
+                    w.write_u16::<LE>(block_in_field_sdata.bid)?;
                 }
             }
             // ---
             
             // Dropdowns
-            w.write_array_with_length(|w, &l| w.write_u16::<LittleEndian>(l), |w, &v| w.write_u8(v), &dropdowns)?;
+            w.write_array_with_length(|w, &l| w.write_u16::<LE>(l), |w, &v| w.write_u8(v), &dropdowns)?;
             // ---
 
             // Colors
             w.write_array_with_length(
-                |w, &l| w.write_u16::<LittleEndian>(l),
-                |w, &v| w.write_array(&v, |w, &v| w.write_f32::<LittleEndian>(v)),
+                |w, &l| w.write_u16::<LE>(l),
+                |w, &v| w.write_array(&v, |w, &v| w.write_f32::<LE>(v)),
                 colors.as_ref()
             )?;
             // ---
 
             // Gradients
-            w.write_u16::<LittleEndian>(gradients.len() as u16)?;
+            w.write_u16::<LE>(gradients.len() as u16)?;
             for gradient in gradients.iter() {
-                w.write_gradient::<LittleEndian>(gradient)?;
+                w.write_gradient::<LE>(gradient)?;
             }
             // ---
         }
@@ -472,7 +472,7 @@ fn write_block_metadata<W: Write>(mut w: W, block: &Block, building_sdata: &mut 
                 if !is_custom_block {
                     w.write_u8(vectors_len)?;
                     for vector in vectors.iter() {
-                        w.write_array(vector, |w, &v| w.write_f32::<LittleEndian>(v))?;
+                        w.write_array(vector, |w, &v| w.write_f32::<LE>(v))?;
                     }
                 } else {
                     let mut bounds = Bounds::new();
@@ -493,7 +493,7 @@ fn write_block_metadata<W: Write>(mut w: W, block: &Block, building_sdata: &mut 
 
                     let map = |x| ((x - min) / (max - min) * u16::MAX as f32) as u16;
                     for vector in vectors.iter() {
-                        w.write_array(vector, |w, &v| w.write_u16::<LittleEndian>(map(v)))?;
+                        w.write_array(vector, |w, &v| w.write_u16::<LE>(map(v)))?;
                     }
                 }
             }
@@ -520,7 +520,7 @@ fn write_block_metadata<W: Write>(mut w: W, block: &Block, building_sdata: &mut 
                         return Err(Error::new(ErrorKind::Other, "Block id in fields can't be equal to u16::MAX, because this value is reserved. (Why do you have 65535 blocks wth)"));
                     }
 
-                    w.write_u16::<LittleEndian>(block_in_field_sdata.bid)?;
+                    w.write_u16::<LE>(block_in_field_sdata.bid)?;
                 }
             }
             // ---
@@ -528,19 +528,19 @@ fn write_block_metadata<W: Write>(mut w: W, block: &Block, building_sdata: &mut 
             // Dropdowns, colors and gradients
             if building_sdata.version < 5 {
                 // Dropdowns
-                w.write_array_with_length(|w, &l| w.write_u16::<LittleEndian>(l), |w, &v| w.write_u8(v), &dropdowns)?;
+                w.write_array_with_length(|w, &l| w.write_u16::<LE>(l), |w, &v| w.write_u8(v), &dropdowns)?;
 
                 // Colors
                 w.write_array_with_length(
-                    |w, &l| w.write_u16::<LittleEndian>(l),
-                    |w, &v| w.write_array(&v, |w, &v| w.write_f32::<LittleEndian>(v)),
+                    |w, &l| w.write_u16::<LE>(l),
+                    |w, &v| w.write_array(&v, |w, &v| w.write_f32::<LE>(v)),
                     colors.as_ref()
                 )?;
 
                 // Gradients
-                w.write_u16::<LittleEndian>(gradients.len() as u16)?;
+                w.write_u16::<LE>(gradients.len() as u16)?;
                 for gradient in gradients.iter() {
-                    w.write_gradient::<LittleEndian>(gradient)?;
+                    w.write_gradient::<LE>(gradient)?;
                 }
             } else {
                 let dropdowns_len = u8::try_from(dropdowns.len())
@@ -559,7 +559,7 @@ fn write_block_metadata<W: Write>(mut w: W, block: &Block, building_sdata: &mut 
                 if colors.len() > 0 {
                     w.write_array_with_length(
                         |w, &l| w.write_u8(l),
-                        |w, &v| w.write_array(&v, |w, &v| w.write_f32::<LittleEndian>(v)),
+                        |w, &v| w.write_array(&v, |w, &v| w.write_f32::<LE>(v)),
                         &colors
                     )?;
                 }
@@ -570,7 +570,7 @@ fn write_block_metadata<W: Write>(mut w: W, block: &Block, building_sdata: &mut 
                 if gradients_len > 0 {
                     w.write_u8(gradients_len)?;
                     for gradient in gradients.iter() {
-                        w.write_gradient::<LittleEndian>(gradient)?;
+                        w.write_gradient::<LE>(gradient)?;
                     }
                 }
             }
