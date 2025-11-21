@@ -18,7 +18,8 @@
 //!
 //! ## Example
 //! ```rust
-//! use my_building_lib::{Building, ReadBuilding, WriteBuilding};
+//! use sw_structure_io::structs::*;
+//! use sw_structure_io::io::{WriteBuilding, ReadBuilding};
 //!
 //! // Create a new building
 //! let building = Building::default();
