@@ -103,7 +103,7 @@ pub struct Metadata {
     /// Floating-point numeric parameters.
     pub values: Vec<f32>,
 
-    /// List-of-lists for integer fields; exact meaning is block-specific.
+    /// Defines in which slots outcomming connections are placed (used in blocks like seat, tank chasis controller, etc).
     pub fields: Vec<Vec<i32>>,
 
     /// Values for dropdown-style settings.
