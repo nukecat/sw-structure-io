@@ -104,10 +104,10 @@ pub struct Metadata {
     pub values: Vec<f32>,
 
     /// Defines in which slots outcomming connections are placed (used in blocks like seat, tank chasis controller, etc).
-    pub fields: Vec<Vec<i32>>,
+    pub fields: Vec<Vec<u16>>,
 
     /// Values for dropdown-style settings.
-    pub dropdowns: Vec<i32>,
+    pub dropdowns: Vec<u8>,
 
     /// RGBA color fields.
     pub colors: Vec<[f32; 4]>,

@@ -111,7 +111,7 @@ fn write_block<W: Write>(mut w: W, block: &SerializableBlock, building: &Seriali
         block.load.is_none(),
         true,
         block.enable_state_current > 1.0f32,
-        block.enable_state_current != 0.0f32
+        false // block.enable_state_current != 0.0f32
     ];
 
     w.write_u8(pack_bools(&flags)[0])?;
@@ -159,26 +159,32 @@ fn write_metadata<W: Write>(mut w: W, block: &SerializableBlock, building: &Seri
 
     // Vector flag + fields count
     let fields_len = u16::try_from(metadata.fields.len())?;
-    if fields_len > 0x7FFF {
-        return Err(Box::new(FailedToUnwrap));
+    if fields_len >= u16::MAX / 2 {
+        return Err(Box::new(TooManyValues));
     }
-    w.write_u16::<LE>(fields_len | if metadata.vectors.is_empty() {0x0000} else {0x8000})?;
+    w.write_u16::<LE>(fields_len | if metadata.vectors.is_empty() {0} else {u16::MAX / 2})?;
 
     // Vectors count + vectors
-    w.write_u16::<LE>(u16::try_from(metadata.vectors.len())?)?;
-    for &v in metadata.vectors.iter() {
-        w.write_array_f32::<LE>(&v)?;
+    if !metadata.vectors.is_empty() {
+        w.write_u16::<LE>(u16::try_from(metadata.vectors.len())?)?;
+        for &v in metadata.vectors.iter() {
+            w.write_array_f32::<LE>(&v)?;
+        }
     }
 
     // Fields
-    for v in &metadata.fields {
+    for v in metadata.fields.iter() {
         w.write_u16::<LE>(u16::try_from(v.len())?)?;
-        w.write_array_i32::<LE>(v)?;
+        for &g in v {
+            w.write_i32::<LE>(g as i32)?;
+        }
     }
 
     // Dropdowns
     w.write_u16::<LE>(u16::try_from(metadata.dropdowns.len())?)?;
-    w.write_array_i32::<LE>(&metadata.dropdowns)?;
+    for &v in metadata.dropdowns.iter() {
+        w.write_i32::<LE>(v as i32)?;
+    }
 
     // Colors
     w.write_u16::<LE>(u16::try_from(metadata.colors.len())?)?;
