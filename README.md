@@ -11,7 +11,7 @@ Low-level library for versioned serialization and deserialization of SW building
 |       | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  |
 |-------|----|----|----|----|----|----|----|----|----|
 | Write | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Read  | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Read  | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ## Usage
 
