@@ -15,7 +15,7 @@ pub struct Building {
     pub blocks: Vec<Block>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 /// A physically independent part of a building.
 /// 
 /// A `Root` is a rigid body that can contain multiple blocks.  
@@ -79,7 +79,7 @@ pub struct Block {
     pub color: Option<[u8; 4]>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 /// A color gradient consisting of color and alpha keys.
 /// 
 /// Each gradient is defined by color values over normalized time and alpha

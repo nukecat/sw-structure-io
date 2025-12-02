@@ -1,13 +1,12 @@
 use std::{
-    collections::HashSet, io::{Read, Write}, sync::LazyLock
+    backtrace::Backtrace, collections::HashSet, io::{Read, Write}, sync::LazyLock
 };
 
 mod version;
 mod utils;
 
-use thiserror::Error;
-use crate::structs::Building;
-use byteorder::{LE, WriteBytesExt, ReadBytesExt};
+use crate::{io::utils::{LE, ReadUtilsExt, WriteUtilsExt}, structs::Building};
+use log::{debug, error, info, trace, warn};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -21,11 +20,11 @@ static CUSTOM_BLOCKS: LazyLock<HashSet<u8>> = LazyLock::new(||[
     109, 120, 121
 ].into());
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("Failed to unwrap value (probably a logic error).")]
+    #[error("Failed to unwrap value (probably a logic error)")]
     FailedToUnwrap,
-    #[error("Object/value/vector has too many elements.")]
+    #[error("Object/value/vector has too many elements")]
     TooManyValues,
     #[error("The version {version:?} is not supported")]
     UnsuportedVersion {
@@ -70,14 +69,15 @@ pub trait WriteBuilding: Write {
     /// # Errors
     /// Returns an error if the version is unsupported or if writing fails.
     fn write_building(&mut self, building: &Building, version: u8) -> Result<()> {
-        self.write_u8(version)?;
+        self.write_num::<u8, LE>(version)?;
+
+        info!("Selected writer for building version {version}");
 
         match version {
-            0 => version::v0::write_building(self, building)?,
+            0 => version::v0::write_building(self, building),
+            // 1 => version::v1::write_building(self, building),
             _ => return Err(Box::new(Error::UnsuportedVersion { version }))
         }
-        
-        Ok(())
     }
 }
 
@@ -108,12 +108,14 @@ pub trait ReadBuilding: Read {
     /// # Errors
     /// Returns an error if the version is unsupported or if reading fails.
     fn read_building(&mut self) -> Result<Building> {
-        let building = Building::default();
-        let version = self.read_u8()?;
+        let version = self.read_num::<u8, LE>()?;
 
-        todo!();
-        
-        Ok(building)
+        info!("Selected reader for building version {version}");
+
+        match version {
+            0 => version::v0::read_building(self),
+            _ => return Err(Box::new(Error::UnsuportedVersion { version }))
+        }
     }
 }
 
