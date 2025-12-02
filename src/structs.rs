@@ -85,7 +85,7 @@ pub struct Block {
 /// Each gradient is defined by color values over normalized time and alpha
 /// (opacity) over normalized time. The vectors define the full keyed curve.
 pub struct Gradient {
-    pub color_keys: Vec<[f32; 4]>,
+    pub color_keys: Vec<[u8; 4]>,
     pub color_time_keys: Vec<f32>,
     pub alpha_keys: Vec<f32>,
     pub alpha_time_keys: Vec<f32>,
@@ -110,7 +110,7 @@ pub struct Metadata {
     pub dropdowns: Vec<u8>,
 
     /// RGBA color fields.
-    pub colors: Vec<[f32; 4]>,
+    pub colors: Vec<[u8; 4]>,
 
     /// Gradient definitions.
     pub gradients: Vec<Gradient>,
