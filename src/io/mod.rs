@@ -1,5 +1,5 @@
 use std::{
-    backtrace::Backtrace, collections::HashSet, io::{Read, Write}, sync::LazyLock
+    collections::HashSet, io::{Read, Write}, sync::LazyLock
 };
 
 mod version;
@@ -7,8 +7,6 @@ mod utils;
 
 use crate::{io::utils::{LE, ReadUtilsExt, WriteUtilsExt}, structs::Building};
 use log::{debug, error, info, trace, warn};
-
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 static NOT_INTERACTABLE: LazyLock<HashSet<u8>> = LazyLock::new(||{[
     00, 01, 28, 33, 34, 35, 36, 37, 38,
@@ -22,15 +20,27 @@ static CUSTOM_BLOCKS: LazyLock<HashSet<u8>> = LazyLock::new(||[
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("Failed to unwrap value (probably a logic error)")]
+    #[error("conversion between integer types failed")]
+    TryFromInt(#[from] std::num::TryFromIntError),
+    #[error("failed to unwrap a value")]
     FailedToUnwrap,
-    #[error("Object/value/vector has too many elements")]
+    #[error("object/value/vector has too many elements")]
     TooManyValues,
-    #[error("The version {version:?} is not supported")]
-    UnsuportedVersion {
-        version: u8
-    }
+    #[error("the version {version:?} is not supported")]
+    UnsuportedVersion { version: u8 },
+    #[error("I/O error")]
+    IO(#[from] std::io::Error),
+    #[error("failed to read vector")]
+    ReadVec(#[from] utils::ReadVecError),
+    #[error("failed to write vector")]
+    WriteVec(#[from] utils::WriteVecError),
+    #[error("utf8 error")]
+    UTF8(#[from] std::str::Utf8Error),
+    #[error("from utf8 error")]
+    FromUTF8(#[from] std::string::FromUtf8Error)
 }
+
+type Result<T> = std::result::Result<T, Error>;
 
 
 /// Trait for writing a `Building` to a stream.
@@ -76,7 +86,7 @@ pub trait WriteBuilding: Write {
         match version {
             0 => version::v0::write_building(self, building),
             // 1 => version::v1::write_building(self, building),
-            _ => return Err(Box::new(Error::UnsuportedVersion { version }))
+            _ => return Err(Error::UnsuportedVersion { version })
         }
     }
 }
@@ -114,7 +124,8 @@ pub trait ReadBuilding: Read {
 
         match version {
             0 => version::v0::read_building(self),
-            _ => return Err(Box::new(Error::UnsuportedVersion { version }))
+            // 1 => version::v1::read_building(self),
+            _ => return Err(Error::UnsuportedVersion { version })
         }
     }
 }
