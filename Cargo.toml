@@ -1,6 +1,6 @@
 [package]
 name = "sw-structure-io"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["nukcat"]
 edition = "2024"
 description = "SW Structure I/O Library: Read and Write Building Data for Sandbox World"
