@@ -5,6 +5,7 @@ use std::ops::DerefMut;
 use std::{io::Write, ops::Deref};
 use crate::io::{CUSTOM_BLOCKS, Error::*, Error, NOT_INTERACTABLE};
 use crate::io::utils::*;
+use crate::io::utils::{bounds::*, vec::*, pack::*};
 use log::{debug, error, info, warn, trace};
 
 type Result<T> = std::result::Result<T, crate::io::Error>;
@@ -152,19 +153,19 @@ pub(crate) fn write_building<W: Write>(mut w: W, building: &Building) -> Result<
 }
 
 fn write_root<W: Write>(mut w: W, root: &SerializableRoot, building: &SerializableBuilding) -> Result<()> {
-    w.write_array::<f32, LE>(&root.position)?;
-    w.write_array::<f32, LE>(&root.rotation)?;
+    w.write_array_typed::<f32, LE>(&root.position)?;
+    w.write_array_typed::<f32, LE>(&root.rotation)?;
 
     let (center, size) = root.bounds.get_center_and_size();
-    w.write_array::<f32, LE>(&center)?;
-    w.write_array::<f32, LE>(&size)?;
+    w.write_array_typed::<f32, LE>(&center)?;
+    w.write_array_typed::<f32, LE>(&size)?;
 
     Ok(())
 }
 
 fn write_block<W: Write>(mut w: W, block: &SerializableBlock, building: &SerializableBuilding) -> Result<()> {
-    w.write_array::<i16, LE>(&block.position_inbounds)?;
-    w.write_array::<u16, LE>(&pack_rotation(block.rotation))?;
+    w.write_array_typed::<i16, LE>(&block.position_inbounds)?;
+    w.write_array_typed::<u16, LE>(&pack_rotation(block.rotation))?;
 
     w.write_num::<u8, LE>(block.id)?;
     w.write_num::<u8, LE>(block.root.try_into()?)?;
@@ -220,7 +221,7 @@ fn write_metadata<W: Write>(mut w: W, block: &SerializableBlock, building: &Seri
     let metadata = block.metadata.as_ref().ok_or(FailedToUnwrap)?;
 
     // Toggles count + toggles
-    w.write_vec::<u8, u8, LE>(&metadata.toggles.try_into_vec()?)?;
+    w.write_vec::<u8, u8, LE>(&metadata.toggles.into_vec())?;
 
     // Values count + values
     w.write_vec::<u8, f32, LE>(&metadata.values)?;
@@ -228,7 +229,7 @@ fn write_metadata<W: Write>(mut w: W, block: &SerializableBlock, building: &Seri
     // Vector flag + fields count
     let fields_len: u8 = metadata.fields.len().try_into()?;
     if fields_len >= 0x7F {
-        return Err(Box::new(TooManyValues));
+        return Err(TooManyValues);
     }
     w.write_num::<u8, LE>(fields_len | if metadata.vectors.is_empty() {0} else {0x7F})?;
 
@@ -241,7 +242,7 @@ fn write_metadata<W: Write>(mut w: W, block: &SerializableBlock, building: &Seri
         } else {
             w.write_num::<u16, LE>(metadata.vectors.len().try_into()?)?;
             for &v in metadata.vectors.iter() {
-                w.write_array::<f32, LE>(&v)?;
+                w.write_array_typed::<f32, LE>(&v)?;
             }
         }        
     }
@@ -252,12 +253,12 @@ fn write_metadata<W: Write>(mut w: W, block: &SerializableBlock, building: &Seri
     }
 
     // Dropdowns
-    w.write_vec::<u8, i32, LE>(&metadata.dropdowns.try_into_vec()?)?;
+    w.write_vec::<u8, i32, LE>(&metadata.dropdowns.into_vec())?;
 
     // Colors
     w.write_num::<u8, LE>(metadata.colors.len().try_into()?)?;
     for v in &metadata.colors {
-        w.write_array::<u8, LE>(v)?;
+        w.write_array_typed::<u8, LE>(v)?;
     }
 
     // Gradients
@@ -274,7 +275,7 @@ fn write_metadata<W: Write>(mut w: W, block: &SerializableBlock, building: &Seri
 fn write_gradient<W: Write>(mut w: W, gradient: &Gradient) -> Result<()> {
     w.write_num::<u16, LE>(gradient.color_keys.len().try_into()?)?;
     for v in gradient.color_keys.iter() {
-        w.write_array::<u8, LE>(v)?;
+        w.write_array_typed::<u8, LE>(v)?;
     }
     w.write_vec::<u16, f32, LE>(&gradient.color_time_keys)?;
     w.write_vec::<u16, f32, LE>(&gradient.alpha_keys)?;
@@ -328,14 +329,14 @@ pub(crate) fn read_building<R: Read>(mut r: R) -> Result<Building> {
 fn read_root<'a, R: Read>(mut r: R, building: &SerializableBuilding) -> Result<SerializableRoot<'a>> {
     let mut root = SerializableRoot::default();
 
-    root.position = r.read_array::<f32, LE, 3>()?;
+    root.position = r.read_array_typed::<f32, LE, 3>()?;
     trace!("Position: {:?}", root.position);
-    root.rotation = r.read_array::<f32, LE, 3>()?;
+    root.rotation = r.read_array_typed::<f32, LE, 3>()?;
     trace!("Rotation: {:?}", root.rotation);
 
     let (center, size) = (
-        r.read_array::<f32, LE, 3>()?,
-        r.read_array::<f32, LE, 3>()?,
+        r.read_array_typed::<f32, LE, 3>()?,
+        r.read_array_typed::<f32, LE, 3>()?,
     );
 
     root.bounds = Bounds::from_center_and_size(center, size);
@@ -347,9 +348,9 @@ fn read_root<'a, R: Read>(mut r: R, building: &SerializableBuilding) -> Result<S
 fn read_block<'a, R: Read>(mut r: R, building: &SerializableBuilding) -> Result<SerializableBlock<'a>> {
     let mut block = SerializableBlock::default();
 
-    block.position_inbounds = r.read_array::<i16, LE, 3>()?;
+    block.position_inbounds = r.read_array_typed::<i16, LE, 3>()?;
     trace!("Position: {:?}", block.position);
-    block.rotation = unpack_rotation(r.read_array::<u16, LE, 3>()?);
+    block.rotation = unpack_rotation(r.read_array_typed::<u16, LE, 3>()?);
     trace!("Rotation: {:?}", block.rotation);
 
     block.id = r.read_num::<u8, LE>()?;
@@ -435,11 +436,11 @@ fn read_metadata<R: Read>(mut r: R, block: &SerializableBlock, building: &Serial
             let map_back_vec = |v: [u16; 3]| [map_back(v[0]), map_back(v[1]), map_back(v[2])];
 
             for _ in 0..vectors_len {
-                metadata.vectors.push(map_back_vec(r.read_array::<u16, LE, 3>()?))
+                metadata.vectors.push(map_back_vec(r.read_array_typed::<u16, LE, 3>()?))
             }
         } else {
             for _ in 0..vectors_len {
-                metadata.vectors.push(r.read_array::<f32, LE, 3>()?);
+                metadata.vectors.push(r.read_array_typed::<f32, LE, 3>()?);
             }
             trace!("Vectors: {:?}", metadata.vectors);
         }
@@ -460,7 +461,7 @@ fn read_metadata<R: Read>(mut r: R, block: &SerializableBlock, building: &Serial
     // Colors
     let colors_len = r.read_num::<u8, LE>()? as usize;
     for _ in 0..colors_len {
-        metadata.colors.push(r.read_array::<u8, LE, 4>()?);
+        metadata.colors.push(r.read_array_typed::<u8, LE, 4>()?);
     }
     trace!("Colors: {:?}", metadata.colors);
 
@@ -482,7 +483,7 @@ fn read_gradient<R: Read>(mut r: R) -> Result<Gradient> {
     let color_keys_len: usize = r.read_num::<u16, LE>()?.into();
     gradient.color_keys.reserve(color_keys_len);
     for _ in 0..color_keys_len {
-        gradient.color_keys.push(r.read_array::<u8, LE, 4>()?);
+        gradient.color_keys.push(r.read_array_typed::<u8, LE, 4>()?);
     }
 
     gradient.color_time_keys = r.read_vec::<u16, f32, LE>()?;

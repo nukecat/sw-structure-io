@@ -15,7 +15,7 @@ static NOT_INTERACTABLE: LazyLock<HashSet<u8>> = LazyLock::new(||{[
 ].into()});
 
 static CUSTOM_BLOCKS: LazyLock<HashSet<u8>> = LazyLock::new(||[
-    109, 120, 121
+    109, 120, 121, 130
 ].into());
 
 #[derive(thiserror::Error, Debug)]
