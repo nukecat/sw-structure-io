@@ -106,6 +106,16 @@ impl<'a> Reader<'a> {
         .collect())
     }
 
+    /// Read a standard f32 array (u2 count, then one f32 per item).
+    pub fn f32_array_u16_head(&mut self) -> Result<Vec<f32>> {
+        let count = self.u16()? as usize;
+        let mut values = Vec::with_capacity(count);
+        for _ in 0..count {
+            values.push(self.f32()?);
+        }
+        Ok(values)
+    }
+
     /// Read a bool array written via Buffer.BlockCopy (u1 count, 1 byte per bool).
     pub fn bool_array_u8_head(&mut self) -> Result<Vec<bool>> {
         let count = self.u8()? as usize;

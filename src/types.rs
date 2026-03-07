@@ -15,6 +15,12 @@ pub struct Building {
     pub blocks: Vec<Block>,
 }
 
+impl Building {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 /// A physically independent part of a building.
 /// 
@@ -69,6 +75,9 @@ pub struct Block {
 
     /// Connections to other blocks, stored as block indices.
     pub connections: Vec<u16>,
+
+    /// Extra integer data attached to the block.
+    pub additional_ints: Vec<i32>,
 
     /// Index of a block from another root that is mechanically attached  
     /// to this one (used for bearings, shock absorbers, etc.).

@@ -109,8 +109,8 @@ impl Bounds {
         let size = Vec3::new(max.x - min.x, max.y - min.y, max.z - min.z);
         let center = Vec3::new(
             (min.x + max.x) / 2.0,
-                               (min.y + max.y) / 2.0,
-                               (min.z + max.z) / 2.0,
+            (min.y + max.y) / 2.0,
+            (min.z + max.z) / 2.0,
         );
 
         Some(Self { center, size })
