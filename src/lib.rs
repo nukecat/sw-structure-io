@@ -18,20 +18,24 @@
 //!
 //! ## Example
 //! ```rust
-//! use sw_structure_io::structs::*;
-//! use sw_structure_io::io::{WriteBuilding, ReadBuilding};
+//! use sw_structure_io::prelude::*;
 //!
 //! // Create a new building
-//! let building = Building::default();
+//! let building = Building::new();
 //! let version = 0;
 //!
 //! // Serialize it
 //! let mut buffer = vec![];
-//! building.write_building(&mut buffer, version).unwrap();
+//! building.write(buffer, 0).unwrap();
 //!
 //! // Deserialize it
-//! let loaded = Building::read_building(&buffer[..]).unwrap();
+//! let loaded = Building::read(buffer).unwrap();
 //! ```
 
-pub mod structs;
-pub mod io;
+pub mod types;
+pub mod read;
+pub mod write;
+pub mod prelude;
+pub mod error;
+mod io;
+mod context;

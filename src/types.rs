@@ -25,10 +25,10 @@ pub struct Building {
 pub struct Root {
     /// World-space position of the root.  
     /// Used for placing the root on bearings, shock absorbers, or supports.
-    pub position: [f32; 3],
+    pub position: Vec3,
 
     /// World-space rotation of the root, same semantics as `position`.
-    pub rotation: [f32; 3],
+    pub rotation: Vec3,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -42,10 +42,10 @@ pub struct Root {
 /// transform of all blocks attached to it.
 pub struct Block {
     /// World-space position of the block.
-    pub position: [f32; 3],
+    pub position: Vec3,
 
     /// World-space rotation of the block.
-    pub rotation: [f32; 3],
+    pub rotation: Vec3,
 
     /// Numeric block‐type identifier.
     pub id: u8,
@@ -58,7 +58,7 @@ pub struct Block {
     pub metadata: Option<Metadata>,
 
     /// Human-readable block name (VLC-encoded in serialized formats).
-    pub name: String,
+    pub name: Option<String>,
 
     /// A user-facing adjustable value (e.g., slider output, button state, etc.).
     pub enable_state: f32,
@@ -76,7 +76,7 @@ pub struct Block {
 
     /// Block color.  
     /// In versions above 0, this is serialized in RGB565 format.
-    pub color: Option<[u8; 4]>,
+    pub color: Option<Color>,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -85,7 +85,7 @@ pub struct Block {
 /// Each gradient is defined by color values over normalized time and alpha
 /// (opacity) over normalized time. The vectors define the full keyed curve.
 pub struct Gradient {
-    pub color_keys: Vec<[u8; 4]>,
+    pub color_keys: Vec<Color>,
     pub color_time_keys: Vec<f32>,
     pub alpha_keys: Vec<f32>,
     pub alpha_time_keys: Vec<f32>,
@@ -110,13 +110,13 @@ pub struct Metadata {
     pub dropdowns: Vec<u8>,
 
     /// RGBA color fields.
-    pub colors: Vec<[u8; 4]>,
+    pub colors: Vec<Color>,
 
     /// Gradient definitions.
     pub gradients: Vec<Gradient>,
 
     /// 3D vector settings.
-    pub vectors: Vec<[f32; 3]>,
+    pub vectors: Vec<Vec3>,
 
     /// Optional advanced settings that depend on the block type.
     pub type_settings: TypeSettings,
@@ -159,5 +159,55 @@ pub enum TypeSettings {
 impl Default for TypeSettings {
     fn default() -> Self {
         TypeSettings::None
+    }
+}
+
+/// RGBA color, each channel 0.0 - 1.0.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Color {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32,
+}
+
+impl From<[f32; 4]> for Color {
+    fn from(value: [f32; 4]) -> Self {
+        Self { r: value[0], g: value[1], b: value[2], a: value[3] }
+    }
+}
+
+impl Into<[f32; 4]> for Color {
+    fn into(self) -> [f32; 4] {
+        [self.r, self.g, self.b, self.a]
+    }
+}
+
+#[derive(Default, Debug, Clone, Copy, PartialEq)]
+pub struct Vec3 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
+
+impl Vec3 {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Self { x, y, z }
+    }
+
+    pub fn zero() -> Self {
+        Self::new(0.0, 0.0, 0.0)
+    }
+}
+
+impl From<[f32; 3]> for Vec3 {
+    fn from(value: [f32; 3]) -> Self {
+        Self { x: value[0], y: value[1], z: value[2] }
+    }
+}
+
+impl Into<[f32; 3]> for Vec3 {
+    fn into(self) -> [f32; 3] {
+        [self.x, self.y, self.z]
     }
 }
