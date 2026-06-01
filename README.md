@@ -3,6 +3,9 @@ Low-level library for versioned serialization and deserialization of SW building
 
 `sw-structure-io` provides plain Rust data structures (`Building`, `Root`, `Block`, `Metadata`, etc.) and versioned I/O via the `WriteBuilding` and `ReadBuilding` traits. It is not affiliated with the game developer and is intended solely for external tools or analysis.
 
+## Archived
+This project is no longer maintained because I'm lazy and I dont have interest to invest time in this.
+
 ## Features
 - Stable data structures for buildings, roots, blocks, and metadata.
 - Versioned reading and writing of building files.
